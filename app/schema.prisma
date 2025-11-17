@@ -26,6 +26,10 @@ model User {
   contactFormMessages       ContactFormMessage[]
   tasks                     Task[]
   files                     File[]
+  accounts                  Account[]
+  categories                Category[]
+  transactions              Transaction[]
+  budgets                   Budget[]
 }
 
 model GptResponse {
@@ -109,4 +113,130 @@ model ContactFormMessage {
   content                   String
   isRead                    Boolean         @default(false)
   repliedAt                 DateTime?
+}
+
+// ==================== FINANÇAS PESSOAIS ====================
+
+enum AccountType {
+  CHECKING      // Conta corrente
+  SAVINGS       // Poupança
+  CREDIT_CARD   // Cartão de crédito
+  CASH          // Dinheiro
+  INVESTMENT    // Investimento
+  OTHER         // Outro
+}
+
+enum TransactionType {
+  INCOME        // Entrada/Receita
+  EXPENSE       // Saída/Despesa
+  TRANSFER      // Transferência entre contas
+}
+
+model Account {
+  id                        String          @id @default(uuid())
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+
+  user                      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                    String
+
+  name                      String          // Nome da conta (ex: "Conta Corrente Banco X")
+  type                      AccountType     // Tipo da conta
+  balance                   Float           @default(0) // Saldo atual
+  initialBalance            Float           @default(0) // Saldo inicial
+  currency                  String          @default("BRL") // Moeda
+  color                     String?         // Cor para identificação visual
+  icon                      String?         // Ícone para identificação visual
+  description               String?         // Descrição adicional
+  isActive                  Boolean         @default(true) // Conta ativa ou arquivada
+
+  transactions              Transaction[]
+  transfersFrom             Transaction[]   @relation("TransferFrom")
+  transfersTo               Transaction[]   @relation("TransferTo")
+
+  @@index([userId])
+}
+
+model Category {
+  id                        String          @id @default(uuid())
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+
+  user                      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                    String
+
+  name                      String          // Nome da categoria (ex: "Alimentação", "Salário")
+  type                      TransactionType // Tipo: INCOME ou EXPENSE
+  color                     String?         // Cor para identificação visual
+  icon                      String?         // Ícone para identificação visual
+  description               String?         // Descrição adicional
+  isActive                  Boolean         @default(true) // Categoria ativa ou arquivada
+
+  transactions              Transaction[]
+  budgets                   Budget[]
+
+  @@index([userId])
+  @@index([type])
+}
+
+model Transaction {
+  id                        String          @id @default(uuid())
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+
+  user                      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                    String
+
+  account                   Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId                 String
+
+  category                  Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categoryId                String?
+
+  type                      TransactionType // Tipo: INCOME, EXPENSE ou TRANSFER
+  amount                    Float           // Valor da transação
+  description               String          // Descrição da transação
+  date                      DateTime        // Data da transação
+  
+  // Campos para transferências entre contas
+  transferFromAccount       Account?        @relation("TransferFrom", fields: [transferFromAccountId], references: [id], onDelete: SetNull)
+  transferFromAccountId     String?
+  transferToAccount         Account?        @relation("TransferTo", fields: [transferToAccountId], references: [id], onDelete: SetNull)
+  transferToAccountId       String?
+
+  // Campos adicionais
+  notes                     String?         // Notas adicionais
+  tags                      String[]        // Tags para organização
+  isRecurring               Boolean         @default(false) // Se é uma transação recorrente
+  recurringFrequency        String?         // Frequência (DAILY, WEEKLY, MONTHLY, YEARLY)
+  attachmentUrl             String?         // URL de anexo (nota fiscal, comprovante)
+
+  @@index([userId])
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([date])
+  @@index([type])
+}
+
+model Budget {
+  id                        String          @id @default(uuid())
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+
+  user                      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                    String
+
+  category                  Category        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId                String
+
+  name                      String          // Nome do orçamento
+  amount                    Float           // Valor do orçamento
+  period                    String          @default("MONTHLY") // Período: WEEKLY, MONTHLY, YEARLY
+  startDate                 DateTime        // Data de início
+  endDate                   DateTime?       // Data de fim (opcional)
+  isActive                  Boolean         @default(true) // Orçamento ativo
+
+  @@index([userId])
+  @@index([categoryId])
+  @@index([period])
 }

@@ -3,22 +3,22 @@ app OpenSaaS {
     version: "^0.18.0"
   },
 
-  title: "My Open SaaS App",
+  title: "ClipFlow",
 
   head: [
     "<link rel='icon' href='/favicon.ico' />",
     "<meta charset='utf-8' />",
-    "<meta name='description' content='Your apps main description and features.' />",
-    "<meta name='author' content='Your (App) Name' />",
+    "<meta name='description' content='ClipFlow is a tool that helps you create and manage your clips.' />",
+    "<meta name='author' content='ClipFlow' />",
     "<meta name='keywords' content='saas, solution, product, app, service' />",
     
     "<meta property='og:type' content='website' />",
-    "<meta property='og:title' content='Your Open SaaS App' />",
-    "<meta property='og:site_name' content='Your Open SaaS App' />",
-    "<meta property='og:url' content='https://your-saas-app.com' />",
-    "<meta property='og:description' content='Your apps main description and features.' />",
-    "<meta property='og:image' content='https://your-saas-app.com/public-banner.webp' />",
-    "<meta name='twitter:image' content='https://your-saas-app.com/public-banner.webp' />",
+    "<meta property='og:title' content='ClipFlow' />",
+    "<meta property='og:site_name' content='ClipFlow' />",
+    "<meta property='og:url' content='https://clipflow.com' />",
+    "<meta property='og:description' content='ClipFlow is a tool that helps you create and manage your clips.' />",
+    "<meta property='og:image' content='https://clipflow.com/public-banner.webp' />",
+    "<meta name='twitter:image' content='https://clipflow.com/public-banner.webp' />",
     "<meta name='twitter:image:width' content='800' />",
     "<meta name='twitter:image:height' content='400' />",
     "<meta name='twitter:card' content='summary_large_image' />",
@@ -26,8 +26,8 @@ app OpenSaaS {
     // NOTE: Plausible does not use Cookies, so you can simply add the scripts here.
     // Google, on the other hand, does, so you must instead add the script dynamically
     // via the Cookie Consent component after the user clicks the "Accept" cookies button.
-    "<script defer data-domain='<your-site-id>' src='https://plausible.io/js/script.js'></script>",  // for production
-    "<script defer data-domain='<your-site-id>' src='https://plausible.io/js/script.local.js'></script>",  // for development
+    "<script defer data-domain='clipflow.com' src='https://plausible.io/js/script.js'></script>",  // for production
+    "<script defer data-domain='clipflow.com' src='https://plausible.io/js/script.local.js'></script>",  // for development
   ],
 
   // 🔐 Auth out of the box! https://wasp.sh/docs/auth/overview
@@ -38,8 +38,8 @@ app OpenSaaS {
       //   (RequestPasswordReset(Route|Page), PasswordReset(Route|Page), EmailVerification(Route|Page))
       email: {
         fromField: {
-          name: "Open SaaS App",
-          email: "me@example.com"
+          name: "ClipFlow",
+          email: "noreply@budgetingvibe.com"
         },
         emailVerification: {
           clientRoute: EmailVerificationRoute,
@@ -68,7 +68,7 @@ app OpenSaaS {
       // }
     },
     onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/demo-app",
+    onAuthSucceededRedirectTo: "/dashboard",
   },
 
   db: {
@@ -87,11 +87,11 @@ app OpenSaaS {
     // NOTE: "Dummy" provider is just for local development purposes.
     //   Make sure to check the server logs for the email confirmation url (it will not be sent to an address)!
     //   Once you are ready for production, switch to e.g. "SendGrid" or "Mailgun" providers. Check out https://docs.opensaas.sh/guides/email-sending/ .
-    provider: Mailgun,
+    provider:  SendGrid, // For local development. Use "sendgrid", "mailgun", or "resend" for production.
     defaultFrom: {
-      name: "Open SaaS App",
+      name: "Budgeting Vibe",
       // When using a real provider, e.g. SendGrid, you must use the same email address that you configured your account to send out emails with!
-      email: "me@example.com"
+      email: "noreply@clipflow.space"
     },
   },
 }
@@ -302,6 +302,157 @@ route AdminMessagesRoute { path: "/admin/messages", to: AdminMessagesPage }
 page AdminMessagesPage {
   authRequired: true,
   component: import AdminMessages from "@src/admin/dashboards/messages/MessagesPage"
+}
+//#endregion
+
+//#region Finance
+route FinanceDashboardRoute { path: "/dashboard", to: FinanceDashboardPage }
+page FinanceDashboardPage {
+  authRequired: true,
+  component: import FinanceDashboard from "@src/finance/FinanceDashboardPage"
+}
+
+route AccountsRoute { path: "/accounts", to: AccountsPage }
+page AccountsPage {
+  authRequired: true,
+  component: import Accounts from "@src/finance/AccountsPage"
+}
+
+route TransactionsRoute { path: "/transactions", to: TransactionsPage }
+page TransactionsPage {
+  authRequired: true,
+  component: import Transactions from "@src/finance/TransactionsPage"
+}
+
+route CategoriesRoute { path: "/categories", to: CategoriesPage }
+page CategoriesPage {
+  authRequired: true,
+  component: import Categories from "@src/finance/CategoriesPage"
+}
+
+route BudgetsRoute { path: "/budgets", to: BudgetsPage }
+page BudgetsPage {
+  authRequired: true,
+  component: import Budgets from "@src/finance/BudgetsPage"
+}
+
+route TestEmailRoute { path: "/test-email", to: TestEmailPage }
+page TestEmailPage {
+  authRequired: false,
+  component: import TestEmail from "@src/finance/TestEmailPage"
+}
+
+// Dashboard Stats
+query getDashboardStats {
+  fn: import { getDashboardStats } from "@src/finance/operations",
+  entities: [User, Account, Transaction, Category]
+}
+
+// Account Operations
+query getAccounts {
+  fn: import { getAccounts } from "@src/finance/operations",
+  entities: [Account]
+}
+
+action createAccount {
+  fn: import { createAccount } from "@src/finance/operations",
+  entities: [Account]
+}
+
+action updateAccount {
+  fn: import { updateAccount } from "@src/finance/operations",
+  entities: [Account]
+}
+
+action deleteAccount {
+  fn: import { deleteAccount } from "@src/finance/operations",
+  entities: [Account]
+}
+
+// Category Operations
+query getCategories {
+  fn: import { getCategories } from "@src/finance/operations",
+  entities: [Category]
+}
+
+action createCategory {
+  fn: import { createCategory } from "@src/finance/operations",
+  entities: [Category]
+}
+
+action updateCategory {
+  fn: import { updateCategory } from "@src/finance/operations",
+  entities: [Category]
+}
+
+action deleteCategory {
+  fn: import { deleteCategory } from "@src/finance/operations",
+  entities: [Category]
+}
+
+// Transaction Operations
+query getTransactions {
+  fn: import { getTransactions } from "@src/finance/operations",
+  entities: [Transaction, Account, Category]
+}
+
+action createTransaction {
+  fn: import { createTransaction } from "@src/finance/operations",
+  entities: [Transaction, Account]
+}
+
+action updateTransaction {
+  fn: import { updateTransaction } from "@src/finance/operations",
+  entities: [Transaction, Account]
+}
+
+action deleteTransaction {
+  fn: import { deleteTransaction } from "@src/finance/operations",
+  entities: [Transaction, Account]
+}
+
+// Budget Operations
+query getBudgets {
+  fn: import { getBudgets } from "@src/finance/operations",
+  entities: [Budget, Category]
+}
+
+action createBudget {
+  fn: import { createBudget } from "@src/finance/operations",
+  entities: [Budget, Category]
+}
+
+action updateBudget {
+  fn: import { updateBudget } from "@src/finance/operations",
+  entities: [Budget]
+}
+
+action deleteBudget {
+  fn: import { deleteBudget } from "@src/finance/operations",
+  entities: [Budget]
+}
+
+query getBudgetAlerts {
+  fn: import { getBudgetAlerts } from "@src/finance/operations",
+  entities: [Budget, Category, Transaction]
+}
+
+// Budget Alert Job - Runs daily to check budgets and send email alerts
+job dailyBudgetAlerts {
+  executor: PgBoss,
+  perform: {
+    fn: import { checkBudgetAlerts } from "@src/server/jobs/budgetAlertJob"
+  },
+  schedule: {
+    cron: "0 9 * * *" // Runs every day at 9:00 AM
+  },
+  entities: [User, Budget, Category, Transaction]
+}
+
+// Test Email Action
+action sendTestEmail {
+  fn: import { sendTestEmailAction } from "@src/server/actions/testEmailAction",
+  entities: [User]
 }
 //#endregion
 

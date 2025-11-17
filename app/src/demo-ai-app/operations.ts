@@ -15,13 +15,16 @@ import { SubscriptionStatus } from '../payment/plans';
 import { ensureArgsSchemaOrThrowHttpError } from '../server/validation';
 import { GeneratedSchedule, TaskPriority } from './schedule';
 
-const openAi = setUpOpenAi();
-function setUpOpenAi(): OpenAI {
-  if (process.env.OPENAI_API_KEY) {
-    return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  } else {
-    throw new Error('OpenAI API key is not set');
+let openAi: OpenAI | null = null;
+
+function getOpenAi(): OpenAI {
+  if (!openAi) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new HttpError(500, 'OpenAI API key is not configured. Please add OPENAI_API_KEY to your .env.server file.');
+    }
+    openAi = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
+  return openAi;
 }
 
 //#region Actions
@@ -217,7 +220,7 @@ async function generateScheduleWithGpt(tasks: Task[], hours: number): Promise<Ge
     time,
   }));
 
-  const completion = await openAi.chat.completions.create({
+  const completion = await getOpenAi().chat.completions.create({
     model: 'gpt-3.5-turbo', // you can use any model here, e.g. 'gpt-3.5-turbo', 'gpt-4', etc.
     messages: [
       {
