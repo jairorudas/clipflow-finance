@@ -436,6 +436,12 @@ query getBudgetAlerts {
   entities: [Budget, Category, Transaction]
 }
 
+// Send budget alert email
+action sendBudgetAlert {
+  fn: import { sendBudgetAlert } from "@src/server/email/sendBudgetAlert",
+  entities: [User]
+}
+
 // Budget Alert Job - Runs daily to check budgets and send email alerts
 job dailyBudgetAlerts {
   executor: PgBoss,
