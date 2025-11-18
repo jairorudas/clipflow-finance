@@ -1,11 +1,17 @@
 import type { SendTestEmail } from 'wasp/server/operations';
 import { sendTestEmail } from '../email/testEmail';
 
-type SendTestEmailArgs = {
+type SendTestEmailInput = {
   email: string;
 };
 
-export const sendTestEmailAction: SendTestEmail<SendTestEmailArgs, any> = async (args, _context) => {
+type SendTestEmailOutput = {
+  success: boolean;
+  message: string;
+  result?: any;
+};
+
+export const sendTestEmailAction: SendTestEmail<SendTestEmailInput, SendTestEmailOutput> = async (args, _context) => {
   const emailToSend = args.email;
 
   if (!emailToSend) {
