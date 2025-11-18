@@ -334,25 +334,28 @@ export default function BudgetsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {budgets.map((budget: any) => {
-              const periodLabel = {
+              const periodLabels: Record<string, string> = {
                 WEEKLY: 'Semanal',
                 MONTHLY: 'Mensal',
                 YEARLY: 'Anual',
-              }[budget.period] || budget.period
+              }
+              const periodLabel = periodLabels[budget.period] || budget.period
 
-              const colorClass = {
+              const colorClasses: Record<string, string> = {
                 safe: 'border-green-500',
                 warning: 'border-yellow-500',
                 danger: 'border-orange-500',
                 exceeded: 'border-red-500',
-              }[budget.alertLevel] || 'border-gray-300'
+              }
+              const colorClass = colorClasses[budget.alertLevel] || 'border-gray-300'
 
-              const progressColor = {
+              const progressColors: Record<string, string> = {
                 safe: 'bg-green-500',
                 warning: 'bg-yellow-500',
                 danger: 'bg-orange-500',
                 exceeded: 'bg-red-500',
-              }[budget.alertLevel] || 'bg-blue-500'
+              }
+              const progressColor = progressColors[budget.alertLevel] || 'bg-blue-500'
 
               return (
                 <Card key={budget.id} className={`relative border-2 ${colorClass}`}>
