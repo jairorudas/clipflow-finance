@@ -87,9 +87,9 @@ app OpenSaaS {
     // NOTE: "Dummy" provider is just for local development purposes.
     //   Make sure to check the server logs for the email confirmation url (it will not be sent to an address)!
     //   Once you are ready for production, switch to e.g. "SendGrid" or "Mailgun" providers. Check out https://docs.opensaas.sh/guides/email-sending/ .
-    provider:  SendGrid, // For local development. Use "sendgrid", "mailgun", or "resend" for production.
+    provider: Dummy, // For local development. Use SendGrid, Mailgun for production.
     defaultFrom: {
-      name: "Budgeting Vibe",
+      name: "ClipFlow",
       // When using a real provider, e.g. SendGrid, you must use the same email address that you configured your account to send out emails with!
       email: "noreply@clipflow.space"
     },
@@ -460,12 +460,6 @@ action sendTestEmail {
 api healthCheck {
   fn: import { healthCheck } from "@src/server/healthCheck",
   httpRoute: (GET, "/health-check"),
-  auth: false
-}
-
-api testEmail {
-  fn: import { sendTestEmailAction } from "@src/server/actions/testEmailAction",
-  httpRoute: (POST, "/test-email"),
   auth: false
 }
 //#endregion
