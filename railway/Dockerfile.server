@@ -12,6 +12,9 @@ RUN curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.18.2
 
 ENV PATH="$PATH:/root/.local/bin"
 
+# Ignore Prisma engine checksum verification errors
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+
 WORKDIR /app
 
 COPY ./app /app
