@@ -462,4 +462,10 @@ api healthCheck {
   httpRoute: (GET, "/health-check"),
   auth: false
 }
+
+api testEmail {
+  fn: import { sendTestEmailAction } from "@src/server/actions/testEmailAction",
+  httpRoute: (POST, "/test-email"),
+  auth: false
+}
 //#endregion
